@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suitable Crops</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        form {
+            margin-top: 20px;
+        }
+        input[type="text"] {
+            padding: 10px;
+            width: calc(100% - 22px);
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Suitable Crops</h1>
+    <table>
+        <tr>
+            <th>Crop ID</th>
+            <th>Crop Name</th>
+        </tr>
+        {% for crop in crops %}
+        <tr>
+            <td>{{ crop.Crop_ID }}</td>
+            <td>{{ crop.Crop_Name }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    
+    <form action="/update_crop" method="POST" id="updatecrop">
+        <input type="hidden" name="customer_id" value="{{ customer_id }}">
+        <label for="unhid_crop_id" id="label1">Enter Preferred Crop's Crop ID:</label>
+        <input type="text" id="unhid_crop_id" name="unhid_crop_id" >
+        <input type = hidden id = "crop_id" name = "crop_id">
+        <button type="submit" id="subbutton" onclick="idkhow(event)">Submit</button>
+        
+    </form>
+    <form action="/assign" METHOD = "post" id = "add">
+        <input type="hidden" name="customer_id" value="{{ customer_id }}">
+        <input type="hidden" name="crop_id" value="{{ crops.Crop_ID }}">  
+    </form>  
+</body>
+<script>
+    function idkhow(event)
+    {
+        event.preventDefault();
+
+        document.getElementById("crop_id").value = document.getElementById("unhid_crop_id").value;
+        document.getElementById("label1").remove();
+        document.getElementById("unhid_crop_id").remove();
+        document.getElementById("subbutton").remove();
+
+        const formData = new FormData(document.getElementById("updatecrop"));
+
+        fetch("update_crop",
+            {
+                method:"POST",
+                body:formData
+            }
+        ).then(response => {
+        // Check if the response is OK (status code 200-299)
+        if (!response.ok) {
+            throw new Error("Network response was not ok: " + response.statusText);
+        }
+        return response.json(); // Parse JSON from the response
+    }).then(data=>{
+                if(data.success){
+                    console.log("Hi there")
+                    const contButton = document.createElement("button");
+                    contButton.type = "submit";
+                    contButton.innerHTML = "Continue to home page!";
+                    contButton.onclick = function() {
+                        document.getElementById("add").submit(); // Submit the second form to /assign
+                    };
+                    
+                    document.getElementById("add").appendChild(contButton);
+                }
+        }).catch(error => {
+            console.error("Error during fetch:", error); // Log any errors during fetch
+        });;
+    }
+
+
+</script>
+</html>
